@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "317975166173",
+    "firebase_url": "https://one-day-build.firebaseio.com",
+    "project_id": "one-day-build",
+    "storage_bucket": "one-day-build.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317975166173:android:dfc168213d4b0832072f34",
+        "android_client_info": {
+          "package_name": "com.example.recieptStore"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "317975166173-8sddiojeqh231modoas9vg46pn6mg1h0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.recieptStore",
+            "certificate_hash": "7eeb814dc7a450a37aa4e2a7c0310015f8dd9c7e"
+          }
+        },
+        {
+          "client_id": "317975166173-g0iknb4l9lo42ccale1qgrift6455qb3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDs93g3z0Ez43CoJfJs6fT3nw9jGNC1E7g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "317975166173-g0iknb4l9lo42ccale1qgrift6455qb3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
