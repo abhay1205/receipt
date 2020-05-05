@@ -24,23 +24,15 @@ class _AddScreenState extends State<AddScreen> {
   List<String> recentList = ['Reciept 9'];
   double screenHeight, screenWidth;
   Animation<Color> _progress = AlwaysStoppedAnimation(Colors.yellow);
-  QuerySnapshot receipts;
+  var flag =0;
   
   @override
   void initState() {
-    getData().then((results){
-      setState(() {
-        receipts = results;
-      });
-    });
     getEmail();
     month = getMonth();
     name=''; photoURL=''; dateTimeStamp=''; fileName=''; file = null;
     super.initState();
   }
-
-  // final DocumentReference reference =
-  //     Firestore.instance.document('test/reciept');
   
   String getMonth(){
     var month = DateFormat("MM-yyyy").format(DateTime.now());
@@ -55,7 +47,6 @@ class _AddScreenState extends State<AddScreen> {
   }
   void getEmail() async {
      FirebaseUser user = await FirebaseAuth.instance.currentUser();
-     print(user.email);
      setState(() {
        email = user.email;
      });
@@ -66,43 +57,39 @@ class _AddScreenState extends State<AddScreen> {
     return now; 
   }
 
-  getData() async{
-    return await Firestore.instance.collection('$email').getDocuments();
-  }
-
-  bool checkDup (String name) {
-    print('Entered the function');
-    if(receipts.documents.length != null){
-       print('Entered the if block');
-       var flag =0;
-       var res = receipts.documents.where((element) {
-         if(element == name){
-           flag = 1;
-           return true;
-         }
-         else{
-           flag =0;
-           return false;
-         }
-       });
-       print("result" + res.toString());
-       print(flag.toString());
-      
-
-    }
-
+  void checkDup (String inputName)async {
+    var res;
+    CollectionReference reference = Firestore.instance.collection("$email");
+    reference.where("recipetName", isEqualTo: inputName).getDocuments()
+    .then((QuerySnapshot docs){
+      if(docs.documents.isNotEmpty){
+        for (var i = 0; i < docs.documents.length; i++) {
+         
+          if(docs.documents[i].exists){
+            print("found");
+            _scaffoldKey.currentState.removeCurrentSnackBar();
+            _scaffoldKey.currentState.showSnackBar(SnackBar(duration: Duration(seconds: 5), content: Text('Name not available', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),)));
+          }
+          else{
+                        
+            print("Not Found");
+          }
+        } 
+      }
+    });
+    
   }
    
   Future openCamera() async {
     file = await ImagePicker.pickImage(source: ImageSource.camera);
-    fileName = name;
+    fileName = name+"SOURCE_PATH" + basename(file.path);
     print('added');
     uploadImage(fileName, file).toString();
   }
 
   Future openGallery() async {
     file = await ImagePicker.pickImage(source: ImageSource.gallery);
-    fileName = basename(file.path);
+    fileName = name+"SOURCE_PATH" + basename(file.path);
     uploadImage(fileName, file).toString();
     print('added');
   }
@@ -110,7 +97,6 @@ class _AddScreenState extends State<AddScreen> {
   Future<void> uploadImage(String fileName, File file) async {
       StorageReference _storageReference =
         FirebaseStorage.instance.ref().child(fileName);
-        
         print(fileName.toString());
     _storageReference.putFile(file).onComplete.then((firebaseFile) async {
       var downloadUrl = await firebaseFile.ref.getDownloadURL();
@@ -138,8 +124,8 @@ class _AddScreenState extends State<AddScreen> {
           photoUrl: photoURL,
           dateTimeStamp: dateTimeStamp,
           downloadSize: downloadSize);
-      final CollectionReference collectionReference = Firestore.instance.collection('$email');
-      collectionReference.add(reciept.toJson())
+      final DocumentReference documentReference = Firestore.instance.collection('$email').document('$name');
+      documentReference.setData(reciept.toJson())
           .whenComplete(() {
             print('Document added');
             _scaffoldKey.currentState.showSnackBar(
@@ -180,7 +166,7 @@ class _AddScreenState extends State<AddScreen> {
       padding: EdgeInsets.fromLTRB(30, 20, 30, 20),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-          color: Colors.orange, borderRadius: BorderRadius.circular(30)),
+          color: Color(0xFF045ed1), borderRadius: BorderRadius.circular(30)),
       child: Form(
         key: _formKey,
         child: Column(
@@ -208,34 +194,36 @@ class _AddScreenState extends State<AddScreen> {
       maxLength: 20,
       textCapitalization: TextCapitalization.characters,
       keyboardType: TextInputType.text,
-      cursorColor: Colors.orange,
+      cursorColor: Color(0xFF045ed1),
       style: TextStyle(color: Colors.black, fontSize: 20),
       validator: (input) {
-        input.isEmpty ? 'Name Required' : null;
-        // checkDup(input) == true ? 'Name already exists, try other name': 'Name available';
+        return input.isEmpty ? 'Name Required' : null;
       } ,
       onSaved: (input) {
         name = input;
       },
+
       onChanged: (value) {
+        checkDup(value);
+        
         name = value;
       },
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.white,
-        focusColor: Colors.orange,
+        focusColor: Color(0xFF045ed1),
         contentPadding: EdgeInsets.all(15),
-        hintStyle: TextStyle(color: Colors.orange, fontSize: 20),
+        hintStyle: TextStyle(color: Color(0xFF045ed1), fontSize: 20),
         hintText: 'Name',
         counterStyle: TextStyle(color: Colors.white),
         border: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.orange),
+            borderSide: BorderSide(color: Color(0xFF045ed1)),
             borderRadius: BorderRadius.circular(30)),
         enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.orange),
+            borderSide: BorderSide(color: Color(0xFF045ed1)),
             borderRadius: BorderRadius.circular(30)),
         focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.orange),
+            borderSide: BorderSide(color: Color(0xFF045ed1)),
             borderRadius: BorderRadius.circular(30)),
         errorBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.black, width: 2),
@@ -243,7 +231,7 @@ class _AddScreenState extends State<AddScreen> {
         errorStyle: TextStyle(color: Colors.white, fontSize: 15),
         suffixIcon: Icon(
           Icons.account_circle,
-          color: Colors.orange,
+          color: Color(0xFF045ed1),
         ),
       ),
     );
@@ -260,18 +248,18 @@ class _AddScreenState extends State<AddScreen> {
                     child: RaisedButton.icon(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30)),
-                        splashColor: Colors.orange,
+                        splashColor: Color(0xFF045ed1),
                         color: Colors.white,
                         elevation: 5,
                         onPressed: openCamera,
                         icon: Icon(
                           Icons.add_a_photo,
-                          color: Colors.orangeAccent,
+                          color: Color(0xFF045ed1),
                         ),
                         label: Text(
                           'Camera',
                           style: TextStyle(
-                              fontSize: 20, color: Colors.orangeAccent),
+                              fontSize: 20, color: Color(0xFF045ed1)),
                         )),
                   ),
                 ),
@@ -281,18 +269,18 @@ class _AddScreenState extends State<AddScreen> {
                     child: RaisedButton.icon(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30)),
-                        splashColor: Colors.orange,
+                        splashColor:Color(0xFF045ed1),
                         color: Colors.white,
                         elevation: 5,
                         onPressed: openGallery,
                         icon: Icon(
                           Icons.add_photo_alternate,
-                          color: Colors.orangeAccent,
+                          color: Color(0xFF045ed1),
                         ),
                         label: Text(
                           'Gallery',
                           style: TextStyle(
-                              fontSize: 20, color: Colors.orangeAccent),
+                              fontSize: 20, color: Color(0xFF045ed1)),
                         )),
                   ),
                 )
@@ -309,7 +297,7 @@ class _AddScreenState extends State<AddScreen> {
       height: screenHeight * 0.35,
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        shadowColor: Colors.orange,
+//        shadowColor: Color(0xFF045ed1),
         elevation: 10,
         child: 
         file == null
@@ -323,7 +311,7 @@ class _AddScreenState extends State<AddScreen> {
               )
             : photoURL=='' 
               ? CircularProgressIndicator(
-                backgroundColor: Colors.orange,
+                backgroundColor: Color(0xFF045ed1),
                 valueColor: _progress,
               )
               : Image(
@@ -337,7 +325,7 @@ class _AddScreenState extends State<AddScreen> {
                               height: 50,
                               width: 50,
                               child: CircularProgressIndicator(
-                                backgroundColor: Colors.orange,
+                                backgroundColor: Color(0xFF045ed1),
                                 valueColor: _progress,
                                 value: loadingProgress.expectedTotalBytes !=
                                         null
@@ -367,7 +355,7 @@ class _AddScreenState extends State<AddScreen> {
                   children: <Widget>[
                     Icon(Icons.error, color: Colors.red),
                     SizedBox(width: 10,),
-                    Text("Error", style: TextStyle(color: Colors.orange),),
+                    Text("Error", style: TextStyle(color: Color(0xFF045ed1)),),
                   ],
                 ), duration: Duration(seconds: 3),));
           }
@@ -378,7 +366,7 @@ class _AddScreenState extends State<AddScreen> {
         }
       },
       splashColor: Colors.white,
-      backgroundColor: Colors.orange,
+      backgroundColor: Color(0xFF045ed1),
       icon: Icon(
         Icons.add,
         color: Colors.white,
@@ -409,7 +397,7 @@ class _AddScreenState extends State<AddScreen> {
                 splashColor: Colors.orange,
                 icon: Icon(
                   Icons.arrow_back_ios,
-                  color: Colors.orange,
+                  color: Color(0xFF045ed1),
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();

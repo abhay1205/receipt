@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:recieptStore/logic/AuthService.dart';
 import 'package:recieptStore/models/appState.dart';
+import 'package:recieptStore/redux/actions.dart';
 import 'package:recieptStore/redux/reducer.dart';
 import 'package:recieptStore/screens/AddScreen.dart';
 import 'package:recieptStore/screens/HomeScreen.dart';
@@ -33,13 +34,17 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(),
         routes: {
-          '/home': (BuildContext context) => HomeScreen(),
+          '/home': (BuildContext context) => HomeScreen(
+            onInit: (){
+              StoreProvider.of<AppState>(context).dispatch(getEmailNameAction);
+            }
+          ),
           '/login': (BuildContext context) => LoginScreen(),
           '/add': (BuildContext context) => AddScreen(),
           '/view': (BuildContext context) => ViewScreen(),
           '/drawer': (BuildContext context) => Drawer()
         },
-        home: AuthService().handleAuth(context),
+        home: LoginScreen(),
       ),
     );
   }

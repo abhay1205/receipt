@@ -7,6 +7,7 @@ ThunkAction<AppState> getEmailNameAction = (Store<AppState> store) async {
   final prefs = await SharedPreferences.getInstance();
   final String name = prefs.getString('name');
   final String email = prefs.getString('email');
+  print("Action area $email");
   // final String emailLinkNum = prefs.getString('email-linked-number');
   store.dispatch(GetEmailAction(email));
   store.dispatch(GetNameAction(name));

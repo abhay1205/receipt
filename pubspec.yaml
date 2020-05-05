@@ -39,7 +39,13 @@ dependencies:
   cloud_firestore: ^0.13.4+2
   firebase_storage: ^3.1.5
   intl: ^0.16.1
-  filesize: ^1.0.4
+  cached_network_image: ^2.0.0
+  dio:
+  path_provider:
+  share_extend: ^1.1.5
+  esys_flutter_share: ^1.0.2
+  image_picker_saver:
+  http:
 
 dev_dependencies:
   flutter_test:

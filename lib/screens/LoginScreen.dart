@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:recieptStore/logic/AuthService.dart';
@@ -10,9 +11,24 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final Animation<Color> _progress = AlwaysStoppedAnimation(Colors.yellow);
-  String _name;
+  final Animation<Color> _progress = AlwaysStoppedAnimation(Color(0xFF0341850));
   double screenSizeHeight, screenSizeWidth;
+
+  checkAuth() async{
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+
+    FirebaseUser currentUser = await _auth.currentUser();
+
+    if(currentUser != null){
+      Navigator.of(context).pushReplacementNamed('/home');
+    }
+  }
+
+  @override
+  void initState(){
+    checkAuth();
+    super.initState();
+  }
 
   Widget appIcon() {
     return Container(
@@ -21,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Card(
         color: Colors.orange[600],
         elevation: 10,
-        shadowColor: Colors.black,
+//        shadowColor: Colors.black,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         child: Image(image: AssetImage('asset/index.jpeg'), colorBlendMode: BlendMode.overlay, color: Colors.orange,),
       ),
@@ -34,10 +50,14 @@ class _LoginScreenState extends State<LoginScreen> {
     screenSizeWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.orange,
+      backgroundColor: Color(0xFF045ed1),
       body: Container(
           margin: EdgeInsets.only(left: 40, top: 80),
           decoration: BoxDecoration(
+            boxShadow: [BoxShadow(
+              color: Colors.black,
+              blurRadius: 5
+            )],
               color: Colors.white,
               borderRadius: BorderRadius.only(topLeft: Radius.circular(80))),
           padding: EdgeInsets.fromLTRB(40, 20, 40, 0),
@@ -48,9 +68,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 Container(
                   alignment: Alignment.center,
                   child: Text(' Reciept\nManager',
-                      style: TextStyle(color: Colors.orange, fontSize: 40)),
+                      style: TextStyle(color: Color(0xFF045ed1), fontSize: 40)),
                 ),
-                appIcon(),
+                // appIcon(),
                 // Padding(
                 //   padding: EdgeInsets.fromLTRB(20, 30, 20, 40),
                 //   child: TextFormField(
@@ -91,8 +111,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.center,
                   child: GoogleSignInButton(
                     borderRadius: 30,
-                    textStyle: TextStyle(color: Colors.orange, fontSize: 20),
-                    splashColor: Colors.orange,
+                    textStyle: TextStyle(color: Color(0xFF045ed1), fontSize: 20),
+                    splashColor: Color(0xFF045ed1),
                     onPressed: () {
                       if (_formKey.currentState.validate()) {
                         _formKey.currentState.save();
@@ -101,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           content: Row(
                             children: <Widget>[
                               CircularProgressIndicator(
-                                backgroundColor: Colors.orange,
+                                backgroundColor: Color(0xFF045ed1),
                                 valueColor: _progress,
                               ),
                               SizedBox(
@@ -109,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               Text('Sigining In',
                                   style: TextStyle(
-                                      color: Colors.orange, fontSize: 20))
+                                      color: Color(0xFF045ed1), fontSize: 20))
                             ],
                           ),
                         ));
@@ -121,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           _scaffoldKey.currentState.showSnackBar(SnackBar(
                             content: Text(
                               "Error $e",
-                              style: TextStyle(color: Colors.orange),
+                              style: TextStyle(color: Color(0xFF045ed1)),
                             ),
                             duration: Duration(seconds: 5),
                           ));
