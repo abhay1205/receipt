@@ -1,7 +1,7 @@
 # Flutter app for managing receipts 
 
-Implementing Cloud Firestore, Firebase Storage querying, CURD, pagination, searching, sharing files, user managemnet, camera and gallery for image
-All this intregrated together with redux architecture
+Implementing Cloud Firestore, Firebase Storage, Querying, CURD, Pagination, Searching, Sharing Files, User Managemnet, Camera and Gallery for Image
+All this intregrated together with Redux architecture
 
 <img height="500" src="https://user-images.githubusercontent.com/45196516/81468796-6a0ac480-91ff-11ea-803e-c3082a2b12fb.jpg">
 
