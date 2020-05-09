@@ -3,10 +3,12 @@
 Implementing Cloud Firestore, Firebase Storage querying, CURD, pagination, searching, sharing files, user managemnet, camera and gallery for image
 All this intregrated together with redux architecture
 
-<img align="left" width="250" height="500" src="https://user-images.githubusercontent.com/45196516/81468363-c15b6580-91fc-11ea-866b-390176e8bfa8.jpeg">
-<img align="right" width="250" height="500" src="https://user-images.githubusercontent.com/45196516/81468363-c15b6580-91fc-11ea-866b-390176e8bfa8.jpeg">
-<img align="center" width="250" height="500" src="https://user-images.githubusercontent.com/45196516/81468403-fe275c80-91fc-11ea-9d04-2ddd315dca6e.jpeg">
-
+<img align="left" width="125" height="250" src="https://user-images.githubusercontent.com/45196516/81468363-c15b6580-91fc-11ea-866b-390176e8bfa8.jpeg">
+<img align="right" width="125" height="250" src="https://user-images.githubusercontent.com/45196516/81468403-fe275c80-91fc-11ea-9d04-2ddd315dca6e.jpeg">
+<img align="center" width="125" height="250" src="https://user-images.githubusercontent.com/45196516/81468403-fe275c80-91fc-11ea-9d04-2ddd315dca6e.jpeg">
+<img align="left" width="125" height="250" src="https://user-images.githubusercontent.com/45196516/81468392-f071d700-91fc-11ea-8032-3e03c44dad03.jpeg">
+<img align="right" width="125" height="250" src="https://user-images.githubusercontent.com/45196516/81468403-fe275c80-91fc-11ea-9d04-2ddd315dca6e.jpeg">
+<img align="center" width="125" height="250" src="https://user-images.githubusercontent.com/45196516/81468403-fe275c80-91fc-11ea-9d04-2ddd315dca6e.jpeg">
 
 
 ## Getting Started with prerequisites
