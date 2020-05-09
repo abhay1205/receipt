@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:recieptStore/logic/AuthService.dart';
 import 'package:recieptStore/models/appState.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class DrawerScreen extends StatefulWidget {
   @override
@@ -11,14 +10,6 @@ class DrawerScreen extends StatefulWidget {
 
 class _DrawerScreenState extends State<DrawerScreen> {
   final _drawerKey = GlobalKey<DrawerControllerState>();
-  // String name = '', email = '';
-  // void getInfo() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     name = prefs.getString('name');
-  //     email = prefs.getString('email');
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {

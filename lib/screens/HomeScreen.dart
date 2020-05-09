@@ -12,19 +12,6 @@ class _HomeScreenState extends State<HomeScreen> {
   double screenHeight, screenWidth;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // Widget appIcon() {
-  //   return Container(
-  //     margin: EdgeInsets.fromLTRB(20, 40, 20, 0),
-  //     height: screenHeight*0.35,
-  //     child: Card(
-  //       color: Colors.orange[600],
-  //       elevation: 10,
-  //       shadowColor: Colors.black,
-  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-  //       child: Image(image: AssetImage('asset/index.jpeg'), colorBlendMode: BlendMode.overlay, color: Colors.orange,),
-  //     ),
-  //   );
-  // }
   @override
   void initState() {
     widget.onInit();
@@ -50,8 +37,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(color: Color(0xFF045ed1), fontSize: 40)),
             ),
             // appIcon(),
+             Container( 
+                  height: screenHeight*0.4,
+                  child: Image(image: AssetImage('asset/receipt_573065707_1000.jpg'), fit: BoxFit.fitHeight,),
+                ),
             Container(
-              margin: EdgeInsets.only(top: 30),
+              margin: EdgeInsets.only(top: 10),
               child: OutlineButton(
                 onPressed: () {
                   Navigator.of(context).pushNamed('/add');
@@ -64,12 +55,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 highlightedBorderColor: Color(0xFF045ed1),
                 splashColor: Color(0xFF045ed1),
-                child: Text('Add Reciept',
+                child: Text('Add',
                     style: TextStyle(color: Color(0xFF045ed1), fontSize: 25)),
               ),
             ),
             Container(
-              margin: EdgeInsets.only(top: 60),
+              margin: EdgeInsets.only(top: 10),
               child: OutlineButton(
                 onPressed: () {
                   Navigator.of(context).pushNamed('/view');
@@ -82,7 +73,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 highlightedBorderColor: Color(0xFF045ed1),
                 splashColor: Color(0xFF045ed1),
-                child: Text('View Reciepts',
+                child: Text('View',
+                    style: TextStyle(color: Color(0xFF045ed1), fontSize: 25)),
+              ),
+            ),
+             Container(
+              margin: EdgeInsets.only(top: 10),
+              child: OutlineButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/search');
+                },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(40)),
+                borderSide: BorderSide(
+                  color: Color(0xFF045ed1),
+                  width: 2,
+                ),
+                highlightedBorderColor: Color(0xFF045ed1),
+                splashColor: Color(0xFF045ed1),
+                child: Text('Search',
                     style: TextStyle(color: Color(0xFF045ed1), fontSize: 25)),
               ),
             )
@@ -92,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _backButton() {
+  Widget _drawerButton() {
     return Center(
       child: Container(
         height: screenHeight * 0.09,
@@ -132,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                 children: <Widget>[
                   // DRAWER BUTTON
-                  _backButton(),
+                  _drawerButton(),
                   // MAIN BOARD
                   _curveBoard(),
                 ],

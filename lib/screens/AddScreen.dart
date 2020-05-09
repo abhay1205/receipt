@@ -6,7 +6,6 @@ import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:recieptStore/models/reciept.dart';
-import 'package:recieptStore/screens/SearchBar.dart';
 import 'package:flutter/material.dart';
 
 class AddScreen extends StatefulWidget {
@@ -18,10 +17,10 @@ class _AddScreenState extends State<AddScreen> {
 
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  String name , photoURL , dateTimeStamp, fileName, month, email, downloadSize;
+  String name , photoURL , dateTimeStamp, fileName, month, email;
+  int downloadSize;
   File file;
-  bool isUploaded;
-  List<String> recentList = ['Reciept 9'];
+  bool isUploaded, isAdding;
   double screenHeight, screenWidth;
   Animation<Color> _progress = AlwaysStoppedAnimation(Colors.yellow);
   var flag =0;
@@ -40,11 +39,13 @@ class _AddScreenState extends State<AddScreen> {
     return month;
   }
 
-  void refreshScreen(){
-    setState(() {
-      name =''; photoURL = ''; dateTimeStamp = ''; fileName=''; file = null;
-    });
-  }
+  // void refreshScreen(){
+  //   setState(() {
+  //     name =''; photoURL = ''; dateTimeStamp = ''; fileName=''; file = null;
+  //   });
+  // }
+
+  // THIS REQUEST HAS TO BE RESOLVE BY THE REDUX ARCHI
   void getEmail() async {
      FirebaseUser user = await FirebaseAuth.instance.currentUser();
      setState(() {
@@ -52,26 +53,28 @@ class _AddScreenState extends State<AddScreen> {
      });
   }
 
+  // GET DATE TIME STAMP
   String getDateTimeStamp(){
     var now = DateFormat("dd-MM-yyyy hh:mm:ss").format(DateTime.now());
     return now; 
   }
 
+  // CHECK ALREADY EXISISTING NAME
   void checkDup (String inputName)async {
-    var res;
     CollectionReference reference = Firestore.instance.collection("$email");
     reference.where("recipetName", isEqualTo: inputName).getDocuments()
     .then((QuerySnapshot docs){
       if(docs.documents.isNotEmpty){
         for (var i = 0; i < docs.documents.length; i++) {
-         
           if(docs.documents[i].exists){
             print("found");
             _scaffoldKey.currentState.removeCurrentSnackBar();
-            _scaffoldKey.currentState.showSnackBar(SnackBar(duration: Duration(seconds: 5), content: Text('Name not available', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),)));
+            _scaffoldKey.currentState.showSnackBar(
+              SnackBar(duration: Duration(seconds: 5), 
+                content: Text('Name not available', 
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),)));
           }
-          else{
-                        
+          else{       
             print("Not Found");
           }
         } 
@@ -79,105 +82,121 @@ class _AddScreenState extends State<AddScreen> {
     });
     
   }
-   
+
+  // OPEN CAMERA AND ADD PICTURE 
   Future openCamera() async {
-    file = await ImagePicker.pickImage(source: ImageSource.camera);
-    fileName = name+"SOURCE_PATH" + basename(file.path);
-    print('added');
-    uploadImage(fileName, file).toString();
-  }
-
-  Future openGallery() async {
-    file = await ImagePicker.pickImage(source: ImageSource.gallery);
-    fileName = name+"SOURCE_PATH" + basename(file.path);
-    uploadImage(fileName, file).toString();
-    print('added');
-  }
-
-  Future<void> uploadImage(String fileName, File file) async {
-      StorageReference _storageReference =
-        FirebaseStorage.instance.ref().child(fileName);
-        print(fileName.toString());
-    _storageReference.putFile(file).onComplete.then((firebaseFile) async {
-      var downloadUrl = await firebaseFile.ref.getDownloadURL();
-      String dateTime = getDateTimeStamp();
-     var imageSize =  _storageReference.getMetadata().then((StorageMetadata storageMetadata) =>storageMetadata.sizeBytes.toInt()/1000).toString();
+    await ImagePicker.pickImage(source: ImageSource.camera).then((value){
       setState(() {
-        photoURL = downloadUrl;
-        dateTimeStamp = dateTime;
-        downloadSize = imageSize;
+        file =  value;
+        fileName = email + "/images/" + basename(file.path);
+        isUploaded = true;
       });
-      print('Uploaded');
-       _scaffoldKey.currentState.showSnackBar(
-         SnackBar(
-           backgroundColor: Colors.white,
-           content: Text("Image Uploaded", style: TextStyle(color: Colors.orange),), 
-           duration: Duration(seconds: 3),));
+      print('added');
+      uploadImage(fileName, file);
     });
   }
 
-  saveReciept() async {
+  // OPEN GALLERY AND ADD PICTURE
+  Future openGallery() async {
+    await ImagePicker.pickImage(source: ImageSource.gallery).then((value) {
+      setState(() {
+        file =value;
+        fileName = email + "/images/" + basename(file.path);
+        isUploaded = true;
+      });
+      print('added');
+      uploadImage(fileName, file);
+    });
+  }
+
+  // UPLOAD PICTURE TO FIREBASE STORAGE
+  Future<void> uploadImage(String fileName, File file) async {
+      _scaffoldKey.currentState.removeCurrentSnackBar();
+      isUploaded ? _scaffoldKey.currentState.showSnackBar(SnackBar(backgroundColor: Colors.white, content: Text('Uploading image, plz wait!!', style: TextStyle(color: Colors.black, fontSize: 20)),))
+      :null;
+
+      StorageReference _storageReference =
+        FirebaseStorage.instance.ref().child(fileName);
+      
+      _storageReference.putFile(file).onComplete.then((firebaseFile) async {
+        var downloadUrl = await firebaseFile.ref.getDownloadURL();
+        print("uploaded $downloadUrl");
+        String dateTime = getDateTimeStamp();
+        var imageSize = await file.length();
+        print(imageSize);
+        setState(() {
+          isUploaded = false;
+          photoURL = downloadUrl;
+          dateTimeStamp = dateTime;
+          downloadSize = imageSize;
+        });
+        !isUploaded ? _scaffoldKey.currentState.showSnackBar(SnackBar(backgroundColor: Colors.white, content: Text('Tap On Save', style: TextStyle(color: Colors.black, fontSize: 20),),)) : null;
+    });
     
+  }
+
+  // ADD RECEIPT TO CLOUD FIRESTORE
+  saveReciept() async {
+    setState(() {
+      isAdding = true;
+    });
+    isAdding ? _scaffoldKey.currentState.showSnackBar(SnackBar(content: Container(color: Colors.white, child: CircularProgressIndicator( backgroundColor: Color(0xFF045ed1),valueColor: _progress,)),)) : null;
     if (name.isNotEmpty && photoURL.isNotEmpty) {
+      
       Reciept reciept = Reciept(
-          recieptName: name,
+          receiptName: name,
           photoUrl: photoURL,
+          star: false,
+          searchKey: name.substring(0,1).toUpperCase(),
           dateTimeStamp: dateTimeStamp,
           downloadSize: downloadSize);
       final DocumentReference documentReference = Firestore.instance.collection('$email').document('$name');
       documentReference.setData(reciept.toJson())
           .whenComplete(() {
             print('Document added');
+            _scaffoldKey.currentState.removeCurrentSnackBar();
             _scaffoldKey.currentState.showSnackBar(
               SnackBar(
                 backgroundColor: Colors.white,
                 content: Row(
                   children: <Widget>[
-                    Icon(Icons.check_circle, color: Colors.green),
+                    Icon(Icons.check_circle, color: Colors.green, size: 25),
                     SizedBox(width: 10,),
-                    Text("Receipt Added", style: TextStyle(color: Colors.orange),),
+                    Text("Receipt Added", style: TextStyle(color: Colors.black, fontSize: 25),),
                   ],
                 ), duration: Duration(seconds: 3),));
           } )
           .catchError((e) {
-        print(e);
-        _scaffoldKey.currentState.showSnackBar(
-              SnackBar(
-                backgroundColor: Colors.white,
-                content: Row(
-                  children: <Widget>[
-                    Icon(Icons.error, color: Colors.red),
-                    SizedBox(width: 10,),
-                    Text("Error", style: TextStyle(color: Colors.orange),),
-                  ],
-                ), duration: Duration(seconds: 3),));
-      });
+            print(e);
+            _scaffoldKey.currentState.removeCurrentSnackBar();
+            _scaffoldKey.currentState.showSnackBar(
+                  SnackBar(
+                    backgroundColor: Colors.white,
+                    content: Row(
+                      children: <Widget>[
+                        Icon(Icons.error, color: Colors.red,size: 25,),
+                        SizedBox(width: 10,),
+                        Text("Error", style: TextStyle(color: Colors.black, fontSize: 25),),
+                      ],
+                    ), duration: Duration(seconds: 3),));
+          });
     }
   }
 
   // WIDGETS
-
-
   // RECEIPT FORM
-
   Widget _addRecieptForm() {
     return Container(
       margin: EdgeInsets.all(20),
       padding: EdgeInsets.fromLTRB(30, 20, 30, 20),
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-          color: Color(0xFF045ed1), borderRadius: BorderRadius.circular(30)),
+      decoration: BoxDecoration(color: Color(0xFF045ed1), borderRadius: BorderRadius.circular(30)),
       child: Form(
         key: _formKey,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(bottom: 20),
-              alignment: Alignment.center,
-              child: Text('Add Reciept',
-                  style: TextStyle(color: Colors.white, fontSize: 20)),
-            ),
             _nameInput(),
            _addImage(),
           ],
@@ -187,7 +206,6 @@ class _AddScreenState extends State<AddScreen> {
   }
 
   // NAME INPUT
-
   Widget _nameInput() {
     return TextFormField(
       initialValue: '',
@@ -197,15 +215,14 @@ class _AddScreenState extends State<AddScreen> {
       cursorColor: Color(0xFF045ed1),
       style: TextStyle(color: Colors.black, fontSize: 20),
       validator: (input) {
-        return input.isEmpty ? 'Name Required' : null;
+        return input.length<4 ? 'Too short' : null;
       } ,
       onSaved: (input) {
         name = input;
       },
 
       onChanged: (value) {
-        checkDup(value);
-        
+        value.length>=4 ? checkDup(value) : null;    
         name = value;
       },
       decoration: InputDecoration(
@@ -238,7 +255,6 @@ class _AddScreenState extends State<AddScreen> {
   }
 
   // IMAGE ADD BUTTON
-  
   Widget _addImage(){
     return  Row(
               children: <Widget>[
@@ -289,7 +305,6 @@ class _AddScreenState extends State<AddScreen> {
   }
 
   //  VIEW RECEIPT
-
   Widget _receiptView() {
     return Container(
       alignment: Alignment.center,
@@ -297,7 +312,6 @@ class _AddScreenState extends State<AddScreen> {
       height: screenHeight * 0.35,
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-//        shadowColor: Color(0xFF045ed1),
         elevation: 10,
         child: 
         file == null
@@ -309,13 +323,13 @@ class _AddScreenState extends State<AddScreen> {
                 child: Text('Once photo uploaded,\nyou can preview it here',
                     style: TextStyle(color: Colors.grey[500])),
               )
-            : photoURL=='' 
+            : fileName=='' 
               ? CircularProgressIndicator(
                 backgroundColor: Color(0xFF045ed1),
                 valueColor: _progress,
               )
               : Image(
-                image: NetworkImage(photoURL), loadingBuilder: (context, child, loadingProgress) {
+                image: AssetImage(file.path.toString()), loadingBuilder: (context, child, loadingProgress) {
                    if (loadingProgress == null) {
                               return child;
                             }
@@ -341,13 +355,13 @@ class _AddScreenState extends State<AddScreen> {
   }
 
   // FLOATING ADD BUTTON
-
   Widget _addRecieptButton(BuildContext context) {
     return FloatingActionButton.extended(
       onPressed: () {
         if (_formKey.currentState.validate()) {
           _formKey.currentState.save();
           if (fileName == '') {
+            _scaffoldKey.currentState.removeCurrentSnackBar();
            _scaffoldKey.currentState.showSnackBar(
               SnackBar(
                 backgroundColor: Colors.white,
@@ -360,9 +374,6 @@ class _AddScreenState extends State<AddScreen> {
                 ), duration: Duration(seconds: 3),));
           }
           saveReciept();
-          // Future.delayed(Duration(seconds: 4), () {
-          //   refreshScreen();
-          // });
         }
       },
       splashColor: Colors.white,
@@ -374,10 +385,32 @@ class _AddScreenState extends State<AddScreen> {
       ),
       elevation: 10,
       label: Text(
-        'Add Reciept',
+        'Save',
         style: TextStyle(fontSize: 18, color: Colors.white),
       ),
     );
+  }
+
+  // CUSTOM APPBAR
+  Widget _customAppBar(context){
+    return Container(
+            padding: EdgeInsets.only(top:10),
+            child: Row(
+              children: <Widget>[
+                IconButton(
+                    splashColor: Colors.white,
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: Color(0xFF045ed1),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    }),
+                    SizedBox(width: MediaQuery.of(context).size.width *0.15),
+                   Center(child:Text("Add Receipt", style: TextStyle(color: Color(0xFF045ed1), fontSize: 35)))
+              ],
+            ),
+          );
   }
 
 
@@ -391,18 +424,7 @@ class _AddScreenState extends State<AddScreen> {
       body: Container(
           child: ListView(
         children: <Widget>[
-          Container(
-            alignment: Alignment.topLeft,
-            child: IconButton(
-                splashColor: Colors.orange,
-                icon: Icon(
-                  Icons.arrow_back_ios,
-                  color: Color(0xFF045ed1),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                }),
-          ),
+          _customAppBar(context),
           _addRecieptForm(),
           _receiptView(),
         ],

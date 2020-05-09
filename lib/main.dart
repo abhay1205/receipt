@@ -8,6 +8,7 @@ import 'package:recieptStore/redux/reducer.dart';
 import 'package:recieptStore/screens/AddScreen.dart';
 import 'package:recieptStore/screens/HomeScreen.dart';
 import 'package:recieptStore/screens/LoginScreen.dart';
+import 'package:recieptStore/screens/SearchScreen.dart';
 import 'package:recieptStore/screens/ViewScreen.dart';
 import 'package:redux/redux.dart';
 import 'package:redux_thunk/redux_thunk.dart';
@@ -41,7 +42,12 @@ class MyApp extends StatelessWidget {
           ),
           '/login': (BuildContext context) => LoginScreen(),
           '/add': (BuildContext context) => AddScreen(),
-          '/view': (BuildContext context) => ViewScreen(),
+          '/view': (BuildContext context) => ViewScreen(
+            onInit: (){
+              StoreProvider.of<AppState>(context).dispatch(getEmailNameAction);
+            }
+          ),
+          '/search': (BuildContext context) => SearchScreen(),
           '/drawer': (BuildContext context) => Drawer()
         },
         home: LoginScreen(),

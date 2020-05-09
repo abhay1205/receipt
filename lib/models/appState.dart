@@ -8,8 +8,6 @@ class AppState {
   final String name;
   final String email;
   
-
-
   AppState({
      @required this.name,
     @required this.email, 

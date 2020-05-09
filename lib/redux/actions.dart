@@ -29,4 +29,12 @@ class GetEmailAction {
   GetEmailAction(this._email);
 }
 
+class InitEmailAction{
+  String iEmail;
+  initEmail() async{
+    final prefs = await SharedPreferences.getInstance();
+    iEmail = prefs.getString('email');
+  }
+  
+}
 

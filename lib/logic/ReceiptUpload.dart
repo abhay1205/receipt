@@ -40,7 +40,7 @@ class UploadReceipt{
   saveReciept() async {
     if (name.isNotEmpty && photoURL.isNotEmpty) {
       Reciept reciept = Reciept(
-          recieptName: name,
+          receiptName: name,
           photoUrl: photoURL,
           dateTimeStamp: dateTime);
       reference

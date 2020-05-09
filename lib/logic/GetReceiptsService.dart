@@ -47,7 +47,6 @@ class GetReceipts {
       // String BASE64_IMAGE = filePath;
       // print(filePath.toString());
       var dir = await getExternalStorageDirectory();
-      File img;
       await dio.download(url, "${dir.path}/myimage.jpg");
       var file = "${dir.path}/myimage.jpg";
       print("File path" + file.toString());
